@@ -7,7 +7,7 @@ class s3_uploader:
     def __init__(self):
         self.s3_client = self.get_s3_client()
 
-    def get_s3_client():
+    def get_s3_client(self):
         try:
             s3_client = boto3.client(
                 's3',

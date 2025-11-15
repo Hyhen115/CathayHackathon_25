@@ -31,7 +31,10 @@ class FlyVisionAaaS:
         if response.ok:
             try:
                 result = response.json()
-                return result
+                print(f"Response JSON: {str(result)}")
+                if result.get("label") is not None:
+                    url=result.get("label")
+                return url
             except Exception as e:
                 print(f"Error parsing JSON response: {str(e)}")
                 return None

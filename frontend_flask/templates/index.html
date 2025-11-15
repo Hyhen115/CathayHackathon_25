@@ -2,9 +2,8 @@
 <html>
 
 <head>
-    <title>Full Screen Image Button</title>
+    <title>IFE</title>
     <style>
-        /* Remove margins */
         body,
         html {
             margin: 0;
@@ -12,7 +11,6 @@
             height: 100%;
         }
 
-        /* Make button fill whole screen */
         .full-btn {
             width: 100%;
             height: 100%;
@@ -21,26 +19,72 @@
             background: none;
         }
 
-        /* Make image fill entire viewport */
         .full-btn img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* cover entire window */
             display: block;
-            /* remove gap below image */
             cursor: pointer;
+        }
+
+        /* OVERLAY FOR WEBPAGE */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #overlay iframe {
+            width: 90%;
+            height: 90%;
+            border: none;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px black;
         }
     </style>
 </head>
 
 <body>
 
-    <form action="/run-function" method="POST">
-        <button class="full-btn" type="submit">
-            <img src="{{ url_for('static', filename='assets/img/test.jpeg') }}" alt="Click Me" style="cursor:pointer;">
-        </button>
-    </form>
+    <!-- DEMO IFE -->
+    <button id="screenshotBtn" class="full-btn">
+        <img src="{{ url_for('static', filename='assets/img/test.jpeg') }}" alt="Click Me">
+    </button>
+
+    <!-- overlay with return url-->
+    <div id="overlay" onclick="hideOverlay()">
+        <iframe id="overlayFrame"></iframe>
+    </div>
+
+    <script>
+        const btn = document.getElementById("screenshotBtn");
+
+        btn.addEventListener("click", async (event) => {
+            event.preventDefault(); // stop default form submitting
+            const res = await fetch("/run-function", { method: "POST" });
+            const data = await res.json();
+            showOverlay(data.url);
+        });
+
+        function showOverlay(url) {
+            const overlay = document.getElementById("overlay");
+            const frame = document.getElementById("overlayFrame");
+            // load webpage here
+            frame.src = url;       
+            overlay.style.display = "flex";
+        }
+
+        function hideOverlay() {
+            document.getElementById("overlay").style.display = "none";
+        }
+    </script>
 
 </body>
 

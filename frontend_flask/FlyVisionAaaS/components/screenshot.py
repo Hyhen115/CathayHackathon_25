@@ -14,8 +14,8 @@ class ScreenCapturer:
 
         path = os.path.join(self.save_dir, filename)
         img = ImageGrab.grab()  # full screen
-        img.save(path)
-        return path
+        # img.save(path)
+        return img
 
     def screenshot_object(self, bbox, filename=None):
         """
@@ -27,8 +27,8 @@ class ScreenCapturer:
 
         path = os.path.join(self.save_dir, filename)
         img = ImageGrab.grab(bbox=bbox)
-        img.save(path)
-        return path
+        # img.save(path)
+        return img
 
     def _generate_filename(self):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
