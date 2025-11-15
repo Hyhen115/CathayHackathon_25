@@ -98,46 +98,37 @@ def _best_label_near_point(labels: List[Dict[str, Any]], u: float, v: float) -> 
 
 
 def _lookup_product_url_for_label(label: str, s3_client) -> Optional[str]:
-    bucket = os.getenv('PRODUCT_INDEX_BUCKET')
-    prefix = os.getenv('PRODUCT_INDEX_PREFIX', 'product-index')
-    if not bucket:
+    # Hard-coded product mapping. Update this dict to add or change mappings.
+    # Keys should match Rekognition label names (case-insensitive match is attempted).
+    PRODUCT_URL_MAP = {
+        "t-shirt": "https://example.com/products/t-shirt",
+        "shirt": "https://example.com/products/shirt",
+        "jeans": "https://example.com/products/jeans",
+        "shoe": "https://example.com/products/shoe",
+        "sneaker": "https://example.com/products/sneaker",
+        "bottle": "https://example.com/products/bottle",
+        "phone": "https://example.com/products/phone",
+        "tie": "https://www.hermes.com/hk/en/category/men/ties-stoles-and-scarves/#|"
+        # Add more label -> url mappings here as needed.
+    }
+
+    if not label or not isinstance(label, str):
         return None
 
-    def try_key(key: str) -> Optional[str]:
-        try:
-            obj = s3_client.get_object(Bucket=bucket, Key=key)
-        except s3_client.exceptions.NoSuchKey:  # type: ignore[attr-defined]
-            return None
-        content = obj['Body'].read()
-        # Try JSON
-        try:
-            data = json.loads(content.decode('utf-8'))
-            url = data.get('url')
-            if isinstance(url, str) and url.strip():
-                return url.strip()
-        except Exception:
-            pass
-        # Fallback to plain text
-        txt = content.decode('utf-8').strip()
-        return txt if txt else None
-
-    # Normalize label for key variants
-    raw = label
+    raw = label.strip()
     lower = raw.lower()
-    slug = re.sub(r"[^a-z0-9]+", "-", lower).strip('-')
+    slug = re.sub(r"[^a-z0-9]+", "-", lower).strip("-")
 
-    candidates = [
-        f"{prefix}/{raw}.json",
-        f"{prefix}/{raw}.txt",
-        f"{prefix}/{lower}.json",
-        f"{prefix}/{lower}.txt",
-        f"{prefix}/{slug}.json",
-        f"{prefix}/{slug}.txt",
-    ]
-    for key in candidates:
-        url = try_key(key)
-        if url:
-            return url
+    # Try exact variants in order of likeliness
+    for key in (raw, lower, slug):
+        if not isinstance(key, str):
+            continue
+        # normalize key for lookup (map keys are stored lowercase/slugs)
+        normalized = key.lower()
+        if normalized in PRODUCT_URL_MAP:
+            return PRODUCT_URL_MAP[normalized]
+
+    # No mapping found
     return None
 
 
@@ -189,19 +180,20 @@ def recommend_product(request: HttpRequest):
         return JsonResponse({'detail': f'Invalid touch point or resolution: {str(e)}'}, status=400)
     
 
-    # label_name = _best_label_near_point(labels, u, v)
-    # if not label_name:
-    #     return JsonResponse({'detail': 'No suitable label found near point'}, status=404)
+    label_name = _best_label_near_point(labels, u, v)
+    if not label_name:
+        return JsonResponse({'detail': 'No suitable label found near point'}, status=404)
 
-    # try:
-    #     url = _lookup_product_url_for_label(label_name, s3_client)
-    # except Exception as e:
-    #     return JsonResponse({'detail': f'S3 lookup error: {str(e)}'}, status=502)
+    # return JsonResponse({'label': label_name})
+    try:
+        url = _lookup_product_url_for_label(label_name, s3_client)
+    except Exception as e:
+        return JsonResponse({'detail': f'S3 lookup error: {str(e)}'}, status=502)
 
-    # if not url:
-    #     return JsonResponse({'detail': f'No product mapping for label: {label_name}'}, status=404)
+    if not url:
+        return JsonResponse({'detail': f'No product mapping for label: {label_name}'}, status=404)
 
-    # return JsonResponse({'product_url': url})
+    return JsonResponse({'product_url': url})
 
 
 @csrf_exempt
