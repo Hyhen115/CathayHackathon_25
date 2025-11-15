@@ -1,12 +1,35 @@
-import pyautogui
+import pyscreenshot as ImageGrab
+from datetime import datetime
+import os
 
-class ScreenshotTaker:
-    def __init__(self, save_path="screenshot.png"):
-        """Initialize the ScreenshotTaker with a default save path."""
-        self.save_path = save_path
+class ScreenCapturer:
+    def __init__(self, save_dir="screenshots"):
+        self.save_dir = save_dir
+        os.makedirs(self.save_dir, exist_ok=True)
 
-    def take_screenshot(self):
-        """Take a screenshot of the entire screen and save it to the specified path."""
-        screenshot = pyautogui.screenshot()
-        screenshot.save(self.save_path)
-        print(f"Screenshot saved to {self.save_path}")
+    def screenshot_full(self, filename=None):
+        """Take a full-screen screenshot."""
+        if filename is None:
+            filename = self._generate_filename()
+
+        path = os.path.join(self.save_dir, filename)
+        img = ImageGrab.grab()  # full screen
+        img.save(path)
+        return path
+
+    def screenshot_object(self, bbox, filename=None):
+        """
+        Take a screenshot of the object.
+        bbox = (x1, y1, x2, y2)
+        """
+        if filename is None:
+            filename = self._generate_filename()
+
+        path = os.path.join(self.save_dir, filename)
+        img = ImageGrab.grab(bbox=bbox)
+        img.save(path)
+        return path
+
+    def _generate_filename(self):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        return f"screenshot_{timestamp}.png"
