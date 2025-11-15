@@ -14,11 +14,11 @@ class S3Uploader:
         self.aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
         self.s3_client = boto3.client(
             's3',
-            aws_access_key_id=self.aws_access_key_id,
-            aws_secret_access_key=self.aws_secret_access_key
+            # aws_access_key_id=self.aws_access_key_id,
+            # aws_secret_access_key=self.aws_secret_access_key
         )
-        print ("self.aws_access_key_id:", self.aws_access_key_id)
-        print ("self.aws_secret_access_key:", self.aws_secret_access_key)
+        # print ("self.aws_access_key_id:", self.aws_access_key_id)
+        # print ("self.aws_secret_access_key:", self.aws_secret_access_key)
 
     def upload_file(self, file_name, bucket, object_name=None):
         """Upload a file to an S3 bucket.
