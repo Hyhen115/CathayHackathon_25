@@ -13,8 +13,8 @@ def home():
 @app.route("/run-function", methods=["POST"])
 def FlyVision_Plugin():
     # FlyVision integration logic here
-    path=FlyVisionAaaS_instance_1.recognize_image()
-
+    path= FlyVisionAaaS_instance_1.recognize_image()
+    print(f"Returned URL: {path}")
     url_path = path.replace("static/", "/static/")
 
     return jsonify({"url": url_path})

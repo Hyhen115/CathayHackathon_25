@@ -1,5 +1,6 @@
 import pyscreenshot as ImageGrab
 from datetime import datetime
+import uuid
 import os
 
 class ScreenCapturer:
@@ -14,8 +15,8 @@ class ScreenCapturer:
 
         path = os.path.join(self.save_dir, filename)
         img = ImageGrab.grab()  # full screen
-        # img.save(path)
-        return img
+        img.save(path)
+        return path
 
     def screenshot_object(self, bbox, filename=None):
         """
@@ -27,9 +28,9 @@ class ScreenCapturer:
 
         path = os.path.join(self.save_dir, filename)
         img = ImageGrab.grab(bbox=bbox)
-        # img.save(path)
-        return img
+        img.save(path)
+        return path
 
     def _generate_filename(self):
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return f"screenshot_{timestamp}.png"
+        unique_filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.png"
+        return unique_filename

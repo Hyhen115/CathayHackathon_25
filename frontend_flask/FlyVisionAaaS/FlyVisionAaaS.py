@@ -13,8 +13,9 @@ class FlyVisionAaaS:
         self.backend_url = os.getenv("BACKEND_URL")
 
     def recognize_image(self):
-        img = self.screen_capturer.screenshot_full()
-        url = self.s3_uploader.upload_to_s3(img, self.bucket_name)
+        imgpath = self.screen_capturer.screenshot_full()
+        # print(f"Screenshot saved at: {imgpath}")
+        url = self.s3_uploader.upload_to_s3(imgpath, self.bucket_name)
 
         payload = {
                     "image_s3_url": url,
@@ -32,8 +33,8 @@ class FlyVisionAaaS:
             try:
                 result = response.json()
                 print(f"Response JSON: {str(result)}")
-                if result.get("label") is not None:
-                    url=result.get("label")
+                if result.get("product_url") is not None:
+                    url=result.get("product_url")
                 return url
             except Exception as e:
                 print(f"Error parsing JSON response: {str(e)}")

@@ -2,6 +2,7 @@ import boto3
 from botocore.exceptions import ClientError
 from datetime import datetime
 import uuid
+import os
 
 class s3_uploader:
     def __init__(self):
@@ -17,26 +18,22 @@ class s3_uploader:
             print(f"Error initializing S3 client: {str(e)}")
             return None
     
-    def upload_to_s3(self, file, bucket_name):
+    def upload_to_s3(self, imgpath, bucket_name):
         if not self.s3_client:
             return None
         
         try:
-            # Generate unique filename
-            file_extension = file.name.split('.')[-1]
-            unique_filename = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.{file_extension}"
-            
-            # Upload file to S3
-            self.s3_client.upload_fileobj(
-                file,
-                bucket_name,
-                unique_filename,
-                ExtraArgs={'ContentType': file.type}
-            )
-            
+            filename = os.path.basename(imgpath)
+            with open(imgpath, "rb") as file:
+                self.s3_client.upload_fileobj(
+                    file,
+                    bucket_name,
+                    filename,
+                    ExtraArgs={"ContentType": "image/png"}
+                )
             # Generate URL
-            url = f"https://{bucket_name}.s3.amazonaws.com/{unique_filename}"
-            
+            url = f"https://{bucket_name}.s3.ap-northeast-1.amazonaws.com/{filename}.png"
+            print(f"Uploaded to S3: {url}")
             return url
         
         except ClientError as e:
