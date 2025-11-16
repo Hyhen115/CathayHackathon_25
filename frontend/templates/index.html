@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>IFE</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        .full-btn {
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding: 0;
+            background: none;
+        }
+
+        .full-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            cursor: pointer;
+        }
+
+        /* OVERLAY FOR WEBPAGE */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #overlay iframe {
+            width: 90%;
+            height: 90%;
+            border: none;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px black;
+        }
+
+        /* LOADING SPINNER */
+        #spinnerOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .spinner {
+            border: 12px solid #f3f3f3;
+            border-top: 12px solid #3498db;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- DEMO IFE -->
+    <button id="screenshotBtn" class="full-btn">
+        <img src="{{ url_for('static', filename='assets/img/test.jpeg') }}" alt="Click Me">
+    </button>
+
+    <!-- overlay with returned URL -->
+    <div id="overlay" onclick="hideOverlay()">
+        <iframe id="overlayFrame"></iframe>
+    </div>
+
+    <!-- spinner overlay -->
+    <div id="spinnerOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        const btn = document.getElementById("screenshotBtn");
+        const spinner = document.getElementById("spinnerOverlay");
+
+        btn.addEventListener("click", async (event) => {
+            event.preventDefault();
+
+            // show spinner
+            spinner.style.display = "flex";
+
+            try {
+                const res = await fetch("/run-function", { method: "POST" });
+                const data = await res.json();
+
+                // hide spinner
+                spinner.style.display = "none";
+
+                // show overlay with returned URL
+                showOverlay(data.url);
+
+            } catch (err) {
+                spinner.style.display = "none";
+                console.error("Error fetching URL:", err);
+            }
+        });
+
+        function showOverlay(url) {
+            const overlay = document.getElementById("overlay");
+            const frame = document.getElementById("overlayFrame");
+            frame.src = url;
+            overlay.style.display = "flex";
+        }
+
+        function hideOverlay() {
+            document.getElementById("overlay").style.display = "none";
+        }
+    </script>
+
+</body>
+
+</html>
