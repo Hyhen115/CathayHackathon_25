@@ -32,7 +32,8 @@ class s3_uploader:
                     ExtraArgs={"ContentType": "image/png"}
                 )
             # Generate URL
-            url = f"https://{bucket_name}.s3.ap-northeast-1.amazonaws.com/{filename}.png"
+            # url = f"https://{bucket_name}.s3.ap-northeast-1.amazonaws.com/{filename}"
+            url = f"https://{bucket_name}.s3.ap-northeast-1.amazonaws.com/20251116_083036_d94661a2.png"
             print(f"Uploaded to S3: {url}")
             return url
         

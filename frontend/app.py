@@ -1,14 +1,23 @@
+from flask import Flask, render_template, jsonify
+from FlyVisionAaaS.FlyVisionAaaS import FlyVisionAaaS
 
-import streamlit as st
-from PIL import Image
+app = Flask(__name__)
 
-def on_image_click():
-    st.write("Image clicked!")
+# Initialize the screen capturer
+FlyVisionAaaS_instance_1 = FlyVisionAaaS()
 
-image_path = "src/assets/img/test.jpeg"
-image = Image.open(image_path)
+@app.route("/")
+def home():
+    return render_template("index.html")
 
-if st.button(""):
-    on_image_click()
+@app.route("/run-function", methods=["POST"])
+def FlyVision_Plugin():
+    # FlyVision integration logic here
+    path= FlyVisionAaaS_instance_1.recognize_image()
+    print(f"Returned URL: {path}")
+    url_path = path.replace("static/", "/static/")
 
-st.image(image)
+    return jsonify({"url": url_path})
+
+if __name__ == "__main__":
+    app.run(debug=True)
