@@ -9,4 +9,4 @@ __pycache__/
 logs/
 *.log
 
-frontend_flask/screenshots/
+frontend/screenshots/
