@@ -37,6 +37,7 @@
 6. Add storage (default is fine).
 7. Security Group:
    - Create a new security group or select existing.
+   - Edit Inbound Rules
    - Add rule: port 8000 → Source: `0.0.0.0/0`.
 8. Launch and download the .pem key pair.
 
